@@ -66,8 +66,7 @@ def handle_userinput(user_question):
 
 def main():
     load_dotenv()
-    st.set_page_config(page_title="Chat with multiple PDFs",
-                       page_icon=":books:")
+    st.set_page_config(page_title="Chat with multiple PDFs", page_icon=":books:")
     st.write(css, unsafe_allow_html=True)
 
     if "conversation" not in st.session_state:
@@ -81,35 +80,29 @@ def main():
         handle_userinput(user_question)
         
     
-    title = 'test'
-
-    script = ''
+    first_load = 0
     
-    with open('test.pdf', 'rb') as pdf_file:
-        pdf_reader = PdfReader(pdf_file)
-
-        for page in pdf_reader.pages:
-            script += page.extract_text()
-
-        text_chunks = get_text_chunks(script)
-
-        vectorstore = get_vectorstore(text_chunks)
-
-        st.session_state.conversation = get_conversation_chain(vectorstore)
+    if first_load == 0 : 
         
-    with open('docs/2306.08161.pdf', 'rb') as pdf_file:
-        pdf_reader = PdfReader(pdf_file)
+        script = ''
+        with open('test.pdf', 'rb') as pdf_file:
+            pdf_reader = PdfReader(pdf_file)
 
-        for page in pdf_reader.pages:
-            script += page.extract_text()
+            for page in pdf_reader.pages:
+                script += page.extract_text()
+                 
+        with open('docs/2306.08161.pdf', 'rb') as pdf_file:
+            pdf_reader = PdfReader(pdf_file)
+
+            for page in pdf_reader.pages:
+                script += page.extract_text()
 
         text_chunks = get_text_chunks(script)
-
         vectorstore = get_vectorstore(text_chunks)
-
         st.session_state.conversation = get_conversation_chain(vectorstore)
-
-        st.write(st.session_state.conversation)
+    else :
+        first_load = 1
+        
         
 
     # with st.sidebar:
