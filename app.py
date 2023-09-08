@@ -56,31 +56,28 @@ def handle_userinput(user_question):
 
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
-
-    test = []
-    keep = []
-    for i, message in enumerate(st.session_state.chat_history):
-
-        keep.append(message)
+    
+    keep = [] 
+    reversed_arrays = st.session_state.chat_history[::-1]
+    for m, reversed_array in enumerate(reversed_arrays):
+        
+        keep.append(reversed_array)
 
         if len(keep) == 2:
-            test.append(keep)
+            
+            reversed_keep = keep[::-1]
+            
+            for i, message in enumerate(reversed_keep):
+
+                if i % 2 == 1:
+                    st.write(bot_template.replace(
+                        "{{MSG}}", message.content), unsafe_allow_html=True)
+                else:
+                    st.write(user_template.replace(
+                        "{{MSG}}", message.content), unsafe_allow_html=True)
+            
             keep = []
-
-    reversed_array = test[::-1]
-
-    for m, messages in enumerate(reversed_array):
-
-        for i, message in enumerate(messages):
-
-            if i % 2 == 0:
-                st.write(user_template.replace(
-                    "{{MSG}}", message.content), unsafe_allow_html=True)
-            else:
-                st.write(bot_template.replace(
-                    "{{MSG}}", message.content), unsafe_allow_html=True)
-
-
+            
 def main():
     load_dotenv()
     st.set_page_config(page_title="Chat with multiple PDFs", page_icon=":books:")
