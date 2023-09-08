@@ -10,6 +10,7 @@ from langchain.chains import ConversationalRetrievalChain
 from htmlTemplates import css, bot_template, user_template
 from langchain.llms import HuggingFaceHub
 
+
 def get_pdf_text(pdf_docs):
     text = ""
     for pdf in pdf_docs:
@@ -52,16 +53,32 @@ def get_conversation_chain(vectorstore):
 
 
 def handle_userinput(user_question):
+
     response = st.session_state.conversation({'question': user_question})
     st.session_state.chat_history = response['chat_history']
 
+    test = []
+    keep = []
     for i, message in enumerate(st.session_state.chat_history):
-        if i % 2 == 0:
-            st.write(user_template.replace(
-                "{{MSG}}", message.content), unsafe_allow_html=True)
-        else:
-            st.write(bot_template.replace(
-                "{{MSG}}", message.content), unsafe_allow_html=True)
+
+        keep.append(message)
+
+        if len(keep) == 2:
+            test.append(keep)
+            keep = []
+
+    reversed_array = test[::-1]
+
+    for m, messages in enumerate(reversed_array):
+
+        for i, message in enumerate(messages):
+
+            if i % 2 == 0:
+                st.write(user_template.replace(
+                    "{{MSG}}", message.content), unsafe_allow_html=True)
+            else:
+                st.write(bot_template.replace(
+                    "{{MSG}}", message.content), unsafe_allow_html=True)
 
 
 def main():
@@ -71,15 +88,14 @@ def main():
 
     if "conversation" not in st.session_state:
         st.session_state.conversation = None
-        # print("dafsdfdffdddaffdadfadfdfaaadfsdf")
-        
+
         script = ''
         with open('test.pdf', 'rb') as pdf_file:
             pdf_reader = PdfReader(pdf_file)
 
             for page in pdf_reader.pages:
                 script += page.extract_text()
-                 
+
         with open('docs/2306.08161.pdf', 'rb') as pdf_file:
             pdf_reader = PdfReader(pdf_file)
 
@@ -89,9 +105,7 @@ def main():
         text_chunks = get_text_chunks(script)
         vectorstore = get_vectorstore(text_chunks)
         st.session_state.conversation = get_conversation_chain(vectorstore)
-        
-        
-        
+
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = None
 
@@ -99,20 +113,16 @@ def main():
     user_question = st.text_input("Ask a question about your documents:")
     if user_question:
         handle_userinput(user_question)
-      
-      
+
     # with st.sidebar:
     #     st.subheader("Your documents")
-    #     pdf_docs = st.file_uploader( "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
+    #     pdf_docs = st.file_uploader(
+    #         "Upload your PDFs here and click on 'Process'", accept_multiple_files=True)
     #     if st.button("Process"):
     #         with st.spinner("Processing"):
     #             raw_text = get_pdf_text(pdf_docs)
-
     #             text_chunks = get_text_chunks(raw_text)
-
     #             vectorstore = get_vectorstore(text_chunks)
-
-    #             print("afdfdafddakfdjkdjafk;ddkafjdkj;djdfkfdjfkdjfdkjfkdjkdf")
     #             st.session_state.conversation = get_conversation_chain( vectorstore)
 
 
